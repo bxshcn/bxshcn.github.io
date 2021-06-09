@@ -23,7 +23,7 @@ email: bxshcn@outlook.com
 description: >- # this means to ignore newlines until "baseurl:"
   随便记录，认真分享
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://bxshcn.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: ttyaaron
 github_username:  bxshcn
 
