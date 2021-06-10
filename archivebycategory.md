@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Post by Category
+title: 分类
 permalink: /categoryview/
 sitemap: false
 ---
