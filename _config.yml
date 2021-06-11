@@ -21,7 +21,7 @@
 title: 生生有翼
 email: bxshcn@outlook.com
 description: >- # this means to ignore newlines until "baseurl:"
-  随便记录，认真分享
+  时时记录，认真分享
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://bxshcn.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: ttyaaron
@@ -32,6 +32,7 @@ theme: minima
 disqus:
   shortname: ttyaaron
 google_analytics: G-GL6BM0169V
+lang: zh_CN
 plugins:
   - jekyll-feed
 
