@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "原子性和2PC"
-date:   2021-06-09 15:10:29 +0800
 comments: true
 categories: 数据库 
 ---
@@ -34,7 +33,7 @@ and makes progress if a majority of them are working.
 <div id="refs"></div>
 
 参考：
-- [^1] [Paxos vs two phase commit](https://stackoverflow.com/questions/27304887/paxos-vs-two-phase-commit)
+- [1] [Paxos vs two phase commit](https://stackoverflow.com/questions/27304887/paxos-vs-two-phase-commit)
 - [2] [Consensus, Two Phase and Three Phase Commits](https://medium.com/@balrajasubbiah/consensus-two-phase-and-three-phase-commits-4e35c1a435ac)
 - [3] GRAY, J., LAMPORT, L.  2004.  Consensus on Transaction Commit. 
 

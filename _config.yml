@@ -35,6 +35,7 @@ google_analytics: G-GL6BM0169V
 lang: zh_CN
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # Exclude from processing.
 # The following items will not be processed, by default.

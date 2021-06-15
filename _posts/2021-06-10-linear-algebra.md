@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "线性代数"
-date:   2021-06-10 15:42:29 +0800
 comments: true
 categories: 数学
 ---

@@ -1,7 +1,6 @@
 ---
 layout: post
 title:  "持久化和WAL"
-date:   2021-06-09 11:16:29 +0800
 comments: true
 categories: 数据库 
 ---
