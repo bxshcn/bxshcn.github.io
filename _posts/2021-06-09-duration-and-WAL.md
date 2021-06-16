@@ -37,9 +37,9 @@ WAL包括两类日志，一种是redo log，另外一种是undo log。WAL中的A
 MySQL的InnoDB引擎实现了steal和no-force策略，因此同时使用了redo和undo log。为更好的理解上述内容，本节简要介绍MySQL InnoDB的Crash Recovery过程。
 
 ### Checkpoint
-类似于commit record，Checkpoint也是数据库记录在redo log中的一种标识label，其本质是一个LSN（log sequence number）值，表示已经落盘的最新的change。
+类似于commit record，Checkpoint也是数据库记录在redo log中的一种标识label，其本质是一个LSN（log sequence number）值，表示**已经落盘**的最新的change。
 
-MySQL写data首先更新内存，此时会同步写buffer pool（an area in main memory where InnoDB caches table and index data as it is accessed）和log buffer（the memory area that holds data to be written to the log files on disk）。而log buffer一般会周期性准实时的flush到log file中（Fuzzy checkpoint，InnoDB flushes modified database pages from the buffer pool in small batches），flush完后更新log buffer的checkpoint label，并最终被写到redo log中。
+> MySQL写data首先更新内存，此时会同步写buffer pool（an area in main memory where InnoDB caches table and index data as it is accessed）和log buffer（the memory area that holds data to be written to the log files on disk）。而log buffer一般会周期性准实时的flush到log file中（Fuzzy checkpoint，InnoDB flushes modified database pages from the buffer pool in small batches），flush完后更新log buffer的checkpoint label，并最终被写到redo log中。
 
 ### recovery过程
 1. 前滚：因为no-force的原因，存在已提交但未落盘的内容，因此我们需要checks the redo logs and performs a roll-forward of the database to the present。即在redo log中比较并找到checkpoint到commit record标记之间的日志并应用，将已提交但未落盘的事务重新实施。

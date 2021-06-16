@@ -165,7 +165,7 @@ $ git cat-file -p 99f1a6d12cb4b6f19c8655fca46c3ecf317074e0
 100644 blob 47c6340d6459e05787f644c2447d2595f5d3a54b simplegit.rb
 ```
 其中lib是一个目录，里面包含一个blog对象，the data that Git is storing looks something like this:
-![tree-objects](/assets/2021-06-11-git-introduction/tree-objects.png)
+![tree-object](/assets/2021-06-11-git-introduction/tree-object.png)
 
 tree objects表示了项目的一个snapshot（包含了你最近在stage区域所做的所有修改），但You also don’t have any information about who saved 439the snapshots, when they were saved, or why they were saved..为此git提供了commit object来存储这些信息。
 
