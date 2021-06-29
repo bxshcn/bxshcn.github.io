@@ -62,15 +62,15 @@ TCP使用sliding window protocol控制数据发送方的发送速度，因此sli
 1. 已发送已确认。数据流中已经发送并收到ack确认。如下图所示， 31个字节已经发送并确认。
 2. 已发送但尚未确认。已发送但尚未得到ack确认的字节。下图所示14字节为第2类。
 3. 未发送而接收方已Ready，即接收方存在空闲缓存。如图， 第3类有6字节。
-4. 未发送而接收方Not Ready 由于接收方not ready， 还不允许将这部分数据发出。
+4. 未发送而接收方Not Ready 由于接收方not ready， 所以不允许发送方将这部分数据发出。
 ![flow-control-categories](/assets/2021-06-16-TCP-handshake-and-flowControl/flow-control-categories.png)
 
 其中1因为接收方已经处理我们不再关心；2和3两部分是关键：只要2和3确定，则4就被确定。
 
-实际上，接收方会在最近一次ack响应时，通过TCP Header中的window size告知发送方可以接收的窗口大小，这个窗口大小正好包含了2和3两个部分。正是通过ack响应中的sequence number和window size两个字段，接收方实现了流量控制。我们把这两个字段决定的窗口称为receive window，简称rwnd。
+实际上，接收方会在最近一次ACK响应时，通过TCP Header中的window size告知发送方可以接收的窗口大小，这个窗口大小正好包含了2和3两个部分。正是通过ACK响应中的sequence number和window size两个字段，接收方实现了流量控制。我们把这两个字段决定的窗口称为receive window，简称rwnd。
 ![flow-control](/assets/2021-06-16-TCP-handshake-and-flowControl/flow-control.png)
 
-从上图中可以看出，B进行了三次流量控制。第一次把窗口控制到rwnd=300 ，第二次又减到了rwnd=100 ，最后减到 rwnd=0 ，即不允许发送方再发送数据了。这种使发送方暂停发送的状态将持续到主机B重新发出一个新的窗口值为止。注意B向A发送的三个报文段都设置了标记位 ACK=1 ，只有在ACK=1时确认号字段才有意义。
+从上图中可以看出，B进行了三次流量控制。第一次把窗口控制为rwnd=300 ，第二次又减到了rwnd=100 ，最后减到rwnd=0 ，即不允许发送方再发送数据了。这种使发送方暂停发送的状态将持续到主机B重新发出一个新的窗口值为止。注意B向A发送的三个报文段都设置了标记位ACK=1 ，只有在ACK=1时确认号字段才有意义。
 
 ### congestion control
 除了接收方的处理速度外，发送方还要考虑网络的承载能力：若信息发送途径网络中的设备（比如交换机、路由器，网关等）处理能力不足，也会影响数据传输的有效性。
@@ -92,7 +92,7 @@ TCP使用sliding window protocol控制数据发送方的发送速度，因此sli
 ![congestion-control](/assets/2021-06-16-TCP-handshake-and-flowControl/congestion-control.png)
 
 ### 小结
-发送方既要考虑rwnd大小，也要考虑cwnd大小，因此其发送窗口(sliding window)只能取`min{rwnd, cwnd`}`
+发送方既要考虑rwnd大小，也要考虑cwnd大小，因此其发送窗口(sliding window)只能取`min{rwnd, cwnd}`
 
 the **receive window** is managed by the receiver, who sends out window sizes to the sender. The window sizes announce the number of bytes still free in the receiver buffer, i.e. the number of bytes the sender can still send without needing an acknowledgement from the receiver. The flow-control is run on the receive side and is communicated to the sender whenever the receiver sends a packet (usually, an ACK) to the sender. 
 

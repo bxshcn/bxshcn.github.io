@@ -24,7 +24,7 @@ categories: 数学
 ## 二、linear combinations, span and bases 线性组合、张成的空间与基
 在xy-coordinate system, there are two very special vectors: the unit vector in the x-direction and y-direction. 我们称其为x或者y方向的**单位向量**
 
-这样xy-coordinate system中的任意向量，实际上是上述两个单位向量的线性组合：也就是缩放单位向量后再相加。我们也称这两个单位向量为**基向量（basis vectors）**， together, they're called **the basis of a coordinate system. 它们一起倍称为坐标系的基**。
+这样xy-coordinate system中的任意向量，实际上是上述两个单位向量的线性组合：也就是缩放单位向量后再相加。我们也称这两个单位向量为**基向量（basis vectors）**， together, they're called **the basis of a coordinate system. 它们一起被称为坐标系的基**。
 
 如果选择不同的基向量，那我们就可以得到一个完全合理的新坐标系统（a completely reasonalbe, new coordinate system）.我们总是使用基向量的缩放标量组成的列表来表示一个向量，我们不那么精确的称其为向量的坐标。那么在不同的基向量下，同一个向量将具有不同的坐标。显然这两类坐标系统之间存在一定的关系。
 
