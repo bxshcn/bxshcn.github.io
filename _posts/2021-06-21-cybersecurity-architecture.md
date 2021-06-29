@@ -31,6 +31,7 @@ Access can actually be composed of a complicated set of parameters. For example,
 2. 对authorization的定义和认证，即authorization & Authentication
 3. 基于身份或者authorization做出decision，是approve还是deny
 4. 真正的执行访问，即enforce access，这个阶段要考虑到除了identity和authorization之外的其他contextual information。
+
 下面重点详述前三阶段。
 
 ### 1.2.1 Identity & Authentication
@@ -59,7 +60,7 @@ Identity & Authentication是对身份进行认证，确保通讯的参与者符�
 无论哪种情况：
 
 1. 掌握该物理token（sth you have）的用户即可生成有效OTP，从而实现身份上的认证。
-2. 物理token需要与authentication server共享同一个secret key，因此**物理token是站点特定的**，也即是说，在纯粹的OTP模式下，物理token的scalability存在限制。这一点可比对第二部分FIDO2中的authenticator进行理解。
+2. 物理token需要与authentication server共享同一个secret key，因此**物理token是站点特定的**，也即是说，在单纯的OTP模式下，物理token的scalability存在限制。这一点可比对第二部分FIDO2中的authenticator进行理解。
 
 #### 1.2.1.3 公私钥
 公私钥是一个密钥对，两者不同但配对：采用私钥加密的密文，经公钥解密可以得到明文。
@@ -99,22 +100,22 @@ Message digests are encrypted with private keys creating a digital signature. �
    3. Alice生成一个规定长度的随机密钥$k_{sym}$，并交换给Bob。以便实施对称加密
       - Alice用Bob的$B_{pub}$加密$k_{sym}$, 将结果$E_{k_{sym}}$发送给Bob
       - Bob用自己的私钥$B_{priv}$加密$E_{k_{sym}}$，还原得到$k_{sym}$
-   4. Alice用$k_{sym}$对称加密m|sig，得到c
-   5. Bob用$k_{sym}$解密c，得到m|sig
+   4. Alice用$k_{sym}$对称加密`m|sig`，得到c
+   5. Bob用$k_{sym}$解密c，得到`m|sig`
    6. Bob用$A_{pub}$解密sig，得到消息摘要$d_A$，然后本地计算m的摘要得到$d_B$，如果$d_A = d_B$, 则说明m没有被篡改。
-   > 实际上，为了减少传输，Alice在生成$E_{k_{sym}}$后，并不会立刻发送给Bob，而是在步骤4中得到c后，将两者(c和$E_{k_{sym}}$一并传给Bob。Bob会先解开$E_{k_{sym}}$得到$k_{sym}$,再用$k_{sym}$解密c得到m|sig。
+   > 实际上，为了减少传输，Alice在生成$E_{k_{sym}}$后，并不会立刻发送给Bob，而是在步骤4中得到c后，将两者(c和$E_{k_{sym}}$一并传给Bob。Bob会先解开$E_{k_{sym}}$得到$k_{sym}$,再用$k_{sym}$解密c得到`m|sig`。
 
 #### 1.2.1.4 HMAC
 Hash-based Message Authentication Code，或者keyed-hash message authentication code，即基于哈希的消息认证码，它要求通信双方共享密钥、约定算法、对报文进行Hash运算，形成固定长度的编码。
 
 其通讯过程如下：
 1. 通讯双方提前通过其他机制交换共享密钥k。
-2. 客户端结合消息m和密钥k，进行hash运算得到h，然后将m|h发送给服务端
+2. 客户端结合消息m和密钥k，进行hash运算得到h，然后将`m|h`发送给服务端
 3. 服务端收到消息，结合消息m和密钥k重新进行hash运算得到h'。如果h'和h一致，则表明消息是完整的，没有被篡改。
 
 从上述过程可以看出，因为非法的对端并不知道共享密钥k，所以通过验证某个消息HMAC值的一致性，即可验证对端的身份。这是HMAC的一个重要派生用途，所以它直接就叫做验证码（Message Authentication Code）。
 
-HMAC can provide message authentication using a shared secret instead of using digital signatures with asymmetric cryptography. It trades off the need for a complex public key infrastructure by delegating the key exchange to the communicating parties, who are responsible for establishing and using a trusted channel to agree on the key prior to communication.也就是说，HMAC没有使用非对称加密算法，而是使用共享密钥，这避免了对复杂的PKI基础设施的依赖，但通讯双方必须提前解决好通过可信信道交换对称密钥的问题。
+HMAC can provide message authentication using a shared secret instead of using digital signatures with asymmetric cryptography. It trades off the need for a complex public key infrastructure by delegating the key exchange to the communicating parties, who are responsible for establishing and using a trusted channel to agree on the key prior to communication.也就是说，HMAC没有使用非对称加密算法，而是使用共享密钥，这避免了对复杂的PKI基础设施的依赖，但通讯双方必须提前解决好共享密钥的交换问题。
 
 ### 1.2.2 Authorization & Authentication
 authorization的本质是**主体subject对客体object的操作集合**。人们往往把这种操作集合称为subject对object的rights，或者说subject被grant的privileges。
@@ -223,27 +224,23 @@ OAuth2.0有四种授权模式，其中比较常见的为Authorization Code Grant
 
 那么server-side和Client-Side是什么意思呢？首先要将它们与OAuth2.0中的client区别开，OAuth2.0中的Client是指第三方应用，而Server-side和Client-Side都是指这个第三方应用：对于一个web application来说，the code resides on both sides, client-side code除了负责用户交互，也负责一些业务逻辑处理，server-side code负责数据持久化，以及一些业务逻辑处理。在过去，绝大部分业务逻辑都在服务端实现，而随着前端技术的飞速发展，前端也即客户端的库越来越丰富，客户端实现的业务逻辑占整个系统的比重也越来越高。
 
-OAuth2.0中区分client-side web application和server-side web application的关键，或者说在OAuth2.0中区分server-side（authorization code grant type）和client-side（implicit grant type）认证流程的关键，在于执行特权指令（需要token）的业务逻辑代码是在client端还是在server端实现：如果执行特权指令的代码在client-side端，那么获取token这个代码逻辑就运行在用户本地的user-agent中；如果执行特权指令的代码在Server-side端，就意味着获取token执行特权指令的代码逻辑运行在第三方应用的server远端。
+OAuth2.0中区分client-side web application和server-side web application的关键，或者说在OAuth2.0中区分server-side（authorization code grant type）和client-side（implicit grant type）认证流程的关键，在于获取token执行特权指令的业务逻辑代码是在client端还是在server端实现：如果执行特权指令的代码在client-side端，那么获取token的代码逻辑就运行在用户本地的user-agent中；如果执行特权指令的代码在Server-side端，就意味着获取token的代码逻辑运行在第三方应用的server远端。
 
 基于安全性的考虑，对于server-side端实现，token不会在用户本地的user-agent落地，安全性由授权服务器对第三方应用的注册、认证和其他线下管理来保证；对于client-side端实现，token只能在本地落地并由第三方应用部署在本地user-agent中的代码来使用。
 
 ## 2.2 Session-id vs JWT
 Session-id和JWT都用来识别用户，并为无状态的HTTP提供状态通讯能力。
 
-Session-id是cookie的演绎发展：将原来保存在客户端cookie中的用户相关信息迁移到服务端内存中维护，并将其映射为一个唯一的session-id，掌握该session-id的客户端即被认为是合法用户，因此我们往往将使用session-id进行认证的过程为Session-based Authentication。
+Session-id是cookie的演绎发展：将原来保存在客户端cookie中的用户相关信息迁移到服务端内存中维护，并将其映射为一个唯一的session-id，掌握该session-id的客户端即被认证为合法用户。在这种模式下，the Server does all the heavy lifting server-side. Broadly speaking a client authenticates with its credentials and receives a session_id (which can be stored in a cookie) and attaches this to every subsequent outgoing request. So **this could be considered a "token" as it is the equivalent of a set of credentials**. There is however **nothing fancy about this session_id string. It is just an identifier and the server does everything else**. It is stateful. It associates the identifier with a user account (e.g. in memory or in a database). It can restrict or limit this session to certain operations or a certain time period and can invalidate it if there are security concerns. More importantly it can do and change all of this on the fly. Furthermore it can log the user's every move on the website(s). Possible disadvantages are bad scale-ability (especially over more than one server farm) and extensive memory usage. 注意，**Session_id只是一个普通的唯一性标记，其业务含义完全由服务端来解释，因此服务端必须负责维护session_id所对应的所有用户信息和状态信息**：这一方面导致站点服务需要消耗大量的内存来保存session信息，另一方面也限制了站点服务集群的扩展性和容错能力，因为集群中每个服务器上的session信息，在其他服务器的内存中并不存在。当这台服务器因异常宕机时，连接到该服务上的所有session将失效。一种可能解决方案是使用分布式缓存来集中存放所有session。
 
-In Session-based Authentication the Server does all the heavy lifting server-side. Broadly speaking a client authenticates with its credentials and receives a session_id (which can be stored in a cookie) and attaches this to every subsequent outgoing request. So **this could be considered a "token" as it is the equivalent of a set of credentials**. There is however **nothing fancy about this session_id string. It is just an identifier and the server does everything else**. It is stateful. It associates the identifier with a user account (e.g. in memory or in a database). It can restrict or limit this session to certain operations or a certain time period and can invalidate it if there are security concerns. More importantly it can do and change all of this on the fly. Furthermore it can log the user's every move on the website(s). Possible disadvantages are bad scale-ability (especially over more than one server farm) and extensive memory usage. 注意，**Session_id只是一个普通的唯一性标记，其业务含义完全由服务端来解释，因此服务端必须负责维护session_id所对应的所有用户信息和状态信息**：这一方面导致站点服务需要消耗大量的内存来保存session信息，另一方面也限制了站点服务集群的扩展性和容错能力，因为集群中每个服务器上的session信息，在其他服务器的内存中并不存在，因此当这台服务器因异常宕机，则连接到该服务上的所有session将失效。一种可能解决方案是使用分布式缓存来集中存放所有session。
-
-JWT（JSON Web Token）是一种token。实际上，token大致分为两类：一类是access token（比如OAuth2.0中的token），被用来进行单纯的访问控制；另外一类是session-token，含有session和状态信息，由于session和状态信息也包含用户信息，因此session-token也能实施认证和访问控制。JWT是一种session-token。
-
-对于session-token的应用场景，**no session is persisted server-side (stateless)**. The initial steps are the same. Credentials are exchanged against a token which is then attached to every subsequent request (**it can also be stored in a cookie，也可以由客户端应用自己管理，比如放在请求头中发送给服务端**). However for the purpose of decreasing memory usage, easy scale-ability and total flexibility (tokens can be exchanged with another client) a string with all the necessary information is issued (the token) which is checked after each request made by the client to the server. 
+JWT（JSON Web Token）是一种token。实际上，token大致分为两类：一类是access token（比如OAuth2.0中的token），被用来进行单纯的访问控制；另外一类是session-token，含有session和状态信息，由于session和状态信息也包含用户信息，因此session-token也能实施认证和访问控制。JWT是一种session-token。在session-token模式下，**no session is persisted server-side (stateless)**. The initial steps are the same. Credentials are exchanged against a token which is then attached to every subsequent request (**it can also be stored in a cookie，也可以由客户端应用自己管理，比如放在请求头中发送给服务端**). However for the purpose of decreasing memory usage, easy scale-ability and total flexibility (tokens can be exchanged with another client) **a string with all the necessary information is issued (the token)** which is checked after each request made by the client to the server. 
 
 JWT由head，payload，signature/Encryption三部分构成，其中head指明token的类型和后面第三部分的签名或加密散列算法，payload是存放session信息的地方，在实际使用时默认采用base64编码，所以前两部分在token中相当于是明文，最后一部分是验证签名。
 
 ![session-token-JWT](/assets/2021-06-21-cybersecurity-architecture/session-token-JWT.png)
 
 对于签证签名部分，主要有三种构造机制：
-1. **HMAC，hash机制**：Using a hash mechanism e.g. HMAC-SHA1
+1. **hash机制**：Using a hash mechanism e.g. HMAC-SHA1
 ```
 token = user_id|expiry_date|HMAC(user_id|expiry_date, k)
 where user_id and expiry_date are sent in plaintext with the resulting hash attached (k is only know to the server).
@@ -259,7 +256,7 @@ where x represents the en-/decryption key.
 token = RSA(user_id|expiry_date, private key)
 ```
 ## 2.3 可扩展的OTP
-如前所述，单纯OTP机制下，用户需要持有站点特定的物理token：不同的站点需要使用不同的token。这就限定了单个OTP token的使用范围。
+如1.2.1.2节所述，单纯OTP机制下，物理OTP token是站点特定的，这就导致其scalability受到限制：我们需要为不同的站点准备不同的token。
 
 我们可以结合PKI的公私钥机制来实现可扩展的OTP系统。具体流程如下：
 1. 支持OTP的服务器，生成OTP（one-time password），然后使用用户的公钥加密得到$E_{OTP}$
@@ -268,11 +265,12 @@ token = RSA(user_id|expiry_date, private key)
 
 这里有几点需要注意：
 1. 用户需要提前将其公钥**注册**到支持OTP的服务站点，以便服务站点能根据用户名找到对应的用户公钥。
-2. 使用一个用户私钥来访问多个服务站点，且客户端无需OTP机制支持
-3. 非标准协议，需要服务站点的支持，且无法抵御钓鱼攻击（因为这个过程没有对站点和相关域名的验证过程）。可参照下面FIDO2。
+2. 使用一个用户私钥来访问多个服务站点。
+3. 客户端根本无需支持OTP机制，比如计算OTP。实际上，客户端只需要有一个存储私钥的物理token。
+4. 非标准协议，需要服务站点的支持，且无法抵御钓鱼攻击（因为登录过程中，客户端并没有对站点和相关域名的验证流程）。可参照下面FIDO2。
 
 ## 2.4 FIDO2
-FIDO2利用了PKI非对称的公私钥加解密机制，加上对物理token的保护性访问（PIN码，或者指纹），使得FIDO2是一个2FA协议。
+FIDO2利用了PKI非对称的公私钥加解密机制，加上对物理token的保护性访问（PIN码，或者指纹），FIDO2是一个2FA协议。
 
 FIDO2(Fast IDentity Online 2)，是一个**phishing proof**, **passwordless** authentication protocol。
 
