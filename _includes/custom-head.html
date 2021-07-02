@@ -18,12 +18,8 @@ MathJax = {
 
 (function($){
     setInterval(() => {
-        $.each($('iframe'), (arr,x) => {
-            let src = $(x).attr('src');
-            if (src && src.match(/(ads-iframe)|(disqusads)/gi)) {
-                $(x).remove();
-            }
-        });
+      $('#container-top').remove();
+      $('#container-bottom').remove();
     }, 300);
 })(jQuery);
 
