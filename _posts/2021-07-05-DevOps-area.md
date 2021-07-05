@@ -8,19 +8,17 @@ tags: DevOps
 
 译者按：
 
-区域area是一个抽象名词，它是以Dev和Ops，以及两者之间的协作交互为特性，所定义的工具tool和流程process的总称。
-![areas](/assets/2021-07-05-DevOps-area/areas.png)
+区域area是一个抽象名词，它是以Dev和Ops为对象，以两者之间的协作交互方式为内涵的一个概念，涉及相关的人people，工具tool和流程process。
 
-在此基础上，作者还参照定义了DevOps的成熟度模型，针对任意一个成熟度级别，从具体practice、抽象pattern和深层principle三个层面进行描述，形成了一个针对DevOps的完备立体的论述体系。 
+在此基础上，作者还参照定义了DevOps的成熟度模型，从具体practice、抽象pattern和深层principle三个层面，尝试定义具DevOps实施的成熟程度。由此形成了一个针对DevOps的完备论述体系。 
 
-本文译自[Devops Areas - Codifying devops practices](http://www.jedi.be/blog/2012/05/12/codifying-devops-area-practices/)，作者Patrick Debois，大概成文于2011年上半年。作为DevOps早期的关键布道者，尽管Parick Debois在2011年就写下了这篇文章，对什么是DevOps进行了非常精彩的论述，但网上很少有其他的DevOps相关文章参引这篇文献，其后的留言也异常惨淡，所以我觉得非常有必要将其译成中文，分享给有需要的人。
-
+本文译自[Devops Areas - Codifying devops practices](http://www.jedi.be/blog/2012/05/12/codifying-devops-area-practices/)，作者Patrick Debois，大概成文于2011年上半年。作为DevOps早期的关键布道者，尽管Parick Debois在2011年就写下了这篇文章，对什么是DevOps进行了非常精彩的论述，但似乎很少有人关注到这篇文章，所以我将其翻译过来，分享给有需要的人。
 
 
 # 正文
 在和Gene Kim、John Willis、Mike Orzen一起编写《Devops Cookbook》的时候，我们收集了很多“devops”实践案例。那一阵子我们费了很大劲才将它们编排进书中，我想这是因为当时我们还没有掌握与这些实践有关的某种观念模式。
 
-本文将首次尝试为梳理devops各类实践提供一种结构化方法，尽管一些术语和描述还不够成熟，但我觉得，为获取大家反馈而将其尽快分享出来非常重要。
+本文将首次尝试为梳理devops各类实践提供一种**结构化方法**，尽管一些术语和描述还不够成熟，但我觉得，为获取大家反馈而将其尽快分享出来非常重要。
 
 ## 从正确的角度看devops
 大家都知道现在有很多种devops定义。有些人还会改变devops的名称以便将概念扩展至IT的其他方面，比如star-ops，dev-qa-ops，sec-ops等等。我想这是那些首先参与到devops运动中的人，希望将类似的想法应用到dev和ops之外的其他过程中。（也许类似bus-qa-sec-net-ops的名称更让人印象深刻:）。
@@ -142,7 +140,7 @@ CMMI级别能帮助你量化改进过程的成熟度。但这只解决了一个�
 - 工具层：部署/天
 - 过程层：变更请求次数/天
 - 人员层：涉及人数/部署（即每次部署涉及到的参与人数）
-- 
+
 这里的描述还不够详实，我正在为Velocity 2011大会上关于DevOps度量的[演讲](http://www.jedi.be/blog/2011/09/06/velocityconf-devops-metrics/)而准备，届时大家可以参考。
 
 ## Devops记分卡
