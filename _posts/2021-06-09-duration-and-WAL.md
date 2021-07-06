@@ -3,6 +3,7 @@ layout: post
 title:  "持久化和WAL"
 comments: true
 categories: 数据库 
+tags: WAL,no-force,steal,checkpoint
 ---
 ## 持久化Duration的本质
 持久化的本质是数据落盘，有两种确认数据落盘的方式
