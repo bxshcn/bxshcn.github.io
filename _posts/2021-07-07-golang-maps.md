@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "go语言maps实践"
+title:  "go语言map实践（译）"
 comments: true
 categories: 程序语言
 tags: golang
@@ -14,7 +14,6 @@ map类型定义为：`map[KeyType]ValueType`
 而一个map变量的声明则为：`var m map[string]int`
 
 map类型是**reference type**，就像**pointers**或者**slices**一样，因此它的零值是nil，表示未初始化过，而对于一个nil map，它只是在读取的时候像一个empty map，但尝试写的话将会引发panic，这一点要非常注意。
-> 译注：
 
 初始化一个map有两种方法：`make(map[KeyType]ValueType)`，或者采用literal composition模式`map[keyType]ValueType{}`
 
@@ -58,13 +57,35 @@ enroll["Beckett"] = append(enroll["Beckett"], "algorithm")   // 不论Beckett是
 
 fmt.Printf("%v\n", enroll["Beckett"])     // => [algorithm]
 ```
+再举一例：
+```Go
+    type Person struct {
+        Name  string
+        Likes []string
+    }
+    var people []*Person
 
-映射到现实世界方便进行抽象思维。但在具体使用这些衍生类型时，尤其是在在实际读写时，需要进行强制类型转换，将它们转换为基本类型才能操作。上面append代表的内建函数，以及fmt.Printf这些函数似乎可以dig into这些衍生类型的原始类型，因此不必再进行强制类型转换。
-> Oct,5 2020补充：似乎还有range也支持对这些
-简言之，**除非使用内建和fmt中的函数，否则你不能假设那些原本处理基础类型的函数可以处理你的衍生类型。**
+    likes := make(map[string][]*Person)
+    for _, p := range people {
+        for _, l := range p.Likes {
+            likes[l] = append(likes[l], p)
+        }
+    }
+```
+下面打印出喜欢cheese的人：
+```Go
+    for _, p := range likes["cheese"] {
+        fmt.Println(p.Name, "likes cheese.")
+    }
+```
+下面打印出喜欢bacon的人数：
+```Go
+fmt.Println(len(likes["bacon"]), "people like bacon.")
+```
+注意range和len都将nil slice视为zero-length的slice，因此这两个案例在无人喜欢cheese或者bacon的情况下都可以work。
+> 译注：注意到上面声明people变量，这个slice类型的element是`*Person`，选择指针而不是value作为element，是因为后面有多处都参引到了这些具体的person，不论我们查找喜欢某种食物的人还是统计其个数，我们都没有必要在内存中保留多份Person的拷贝：**我们总是参照现实世界去思考程序逻辑，实体是单独存在的，相关的统计信息则依附于这些实体**。
 
-
-### a map of map, negative example
+### a map of map
 由于map自身则不具有slice的这种写特性，向一个map中添加（map没有顺序的概念，所以只能说添加，而不是追加）key/value对的前提是map非nil。为了统计某个web页面被某个国家访问的次数，我们可以
 ```Go
 hits := make(map[string]map[string]int)   // 声明
@@ -86,7 +107,7 @@ add(hits, "/doc/", "au")
 map的key必须是comparable的：即key之间可以使用==和!=两类运算。
 > 说两个operand是ordered的，即两个operand之间可以支持`<, <=, >, >=`的运算
 
-Golang中comparable的类型几乎包括了所有类型，除了slice，map，和functions，这三种类型的变量之间（以及含有这三种类型变量的struct）不能使用==进行比较，所以也不能作为map的key类型。
+Golang中comparable的类型几乎包括了所有类型，**除了slice，map，和functions**，这三种类型的变量之间（以及含有这三种类型变量的struct）不能使用==进行比较，所以也不能作为map的key类型。
 
 如前所述，我们可以构造a map of map来处理多维映射问题，但其使用上存在不便。假如我们真正需要的只是一个多维到一维的映射结构，而不是一个严格的层次化映射系统（[a truly hierarchical system of maps](https://stackoverflow.com/questions/44305617/nested-maps-in-golang)），那么就可以使用扁平化的struct作为key。
 
