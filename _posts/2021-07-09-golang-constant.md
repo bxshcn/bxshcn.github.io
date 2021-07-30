@@ -55,7 +55,7 @@ type MyString string
 var m MyString
 m = "Hello, 世界"
 ```
-因为`"Hello, 世界"`是utyped string constant，因此将它赋值给a typed variable并不会导致type error，换句话说，不同于有类型的常量`typedHello`，常量`"Hello, 世界"`和`hello`*没有类型*，所以将它们赋值给任意一种和字符串兼容的变量都没有问题。
+因为`"Hello, 世界"`是untyped string constant，因此将它赋值给a typed variable并不会导致type error，换句话说，不同于有类型的常量`typedHello`，常量`"Hello, 世界"`和`hello`*没有类型*，所以将它们赋值给任意一种和字符串兼容的变量都没有问题。
 
 这些无类型的字符串常量当然都是字符串，因此它们能在任何允许字符串的地方使用，但它们并不是`string`类型。
 
@@ -67,7 +67,7 @@ const typedHello string = "Hello, 世界"
 ## 缺省类型
 作为一个Go程序员，你肯定看过许多类似`str := "Hello, 世界"`的声明，也许你正在想，“如果常量是无类型的，`str`又是怎么从这个变量声明中获取到类型的呢？答案是，一个无类型的常量都有一种缺省类型，在需要类型但程序员又没有明确提供的地方，值将被转换成这种未言明的类型，所以`str := "Hello, 世界"`或者`var str = "Hello, 世界"`,将和`var str string = "Hello, 世界"`完全一样。
 
-你可以认为，无类型常量被放置在一个理想化的值空间中，其中的约束比Go的全类型系统空间要少的多。但为了利用它们去做一些事，我们需要将它们赋值给变量，此时变量需要明确其类型，而常量能告诉变量它应该具有的类型。在这个例子中，str成为一个具有`string`类型的值，因为无类型的字符串常量在这个声明中提供了它的缺省类型，`string`
+你可以认为，无类型常量被放置在一个理想化的值空间中，其中的约束比Go的全类型系统空间要少的多。但为了利用它们去做一些事，我们需要将它们赋值给变量，此时变量需要明确其类型，而常量能告诉变量它应该具有的类型。在这个例子中，str成为一个具有`string`类型的值，因为无类型的字符串常量在这个声明中提供了它的缺省类型:`string`
 
 //TODO
 
@@ -104,6 +104,7 @@ fmt.Println(math.Pi)  // 3.141592653589793
 > NaN stands for Not A Number and is a common missing data representation.
 
 ## 无类型复数常量
+//TODO
 
 ## 无类型整数常量
 最后是整数，尽管我们有更多类型的整数（不同size，signed或者unsigned，以及其他比如指针uintptr），但它们都遵循同样的规则。
@@ -121,7 +122,7 @@ u := uint(17)
 我们很容易用`const MaxUint32 = 1<<32 - 1`表示最大的uint32的值，那么如何表示最大的unsigned int呢？int或者uint并未指定位数（这个位数即可能是32，也可能是64，这取决于计算机CPU的体系结构），所以这是个问题。
 
 Go的整型数使用2的补码表示，而-1的所有bits都是1，也就是说，-1的内部表示和最大uint的表示一致，所以我们可能会觉得可以用`const MaxUint uint = -1`，但这是非法的，因为-1不能用一个unsigned变量表示，因为-1并不在unsigned值的范围内，即便强制转换也无济于事，`const MaxUint uint = uint(-1)`会得到一样的错误提示。
-> 译注：数值在硬件层面的表示是一回事，语言的类型系统会强制程序语句或表达式符合相关规则要求。
+> 译注：指令代码必须先通过语言系统的强制规则审查后才能转化成硬件指令，仅仅根据硬件层面的兼容来编写代码是不够的，我们必须首先保证在语言层面的兼容，而语言的类型系统是语言整体规则的一个组成部分，故要予以优先考虑。
 
 在运行时将-1转化为unsigned integer是可行的（译注：因为此时已经没有语言类型系统的监管，所有的操作都是指令集的组合，只需符合硬件层面的规则），因此：
 ```Go
@@ -187,14 +188,14 @@ fmt.Println(f)   // 145.5
 因为在Go中，数字常量就像你所期望的那样：它们看起来就像数字。
 
 
-# 其他参考材料
-## immutability of variable？
+# 补充参考材料（非blog原文内容）
+## [immutability of variable？](https://stackoverflow.com/questions/43368604/constant-struct-in-go)
 'const' is not meant as a way to prevent variables from mutating or anything like that.
 
 [常量类型：](https://golang.org/ref/spec#Constants)
 There are boolean constants, rune constants, integer constants, floating-point constants, complex constants, and string constants. Rune, integer, floating-point, and complex constants are collectively called numeric constants.
 
-所以Go的常量并不是对变量的不可改变的限定含义，而只有字符串常量、数字常量和布尔值常量三类，就像我们在现实生活中感受到的那样。所以当然也没有struct Constant一说。
+**Go中的常量并不是对变量的不可改变的限定含义**。Go只有字符串常量、数字常量和布尔值常量三种类型，就像我们在现实生活中感受到的那样。Go没有struct Constant一说。
 
 ## compile-time vs runtime
 The value of a constant should be known at compile time.

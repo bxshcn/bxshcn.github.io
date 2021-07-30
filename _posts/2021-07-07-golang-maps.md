@@ -82,7 +82,7 @@ fmt.Printf("%v\n", enroll["Beckett"])     // => [algorithm]
 ```Go
 fmt.Println(len(likes["bacon"]), "people like bacon.")
 ```
-注意range和len都将nil slice视为zero-length的slice，因此这两个案例在无人喜欢cheese或者bacon的情况下都可以work。
+注意range和len都将nil slice视为zero-length的slice，因此这两个案例即便在无人喜欢cheese或者bacon的情况下也可以work。
 > 译注：注意到上面声明people变量，这个slice类型的element是`*Person`，选择指针而不是value作为element，是因为后面有多处都参引到了这些具体的person，不论我们查找喜欢某种食物的人还是统计其个数，我们都没有必要在内存中保留多份Person的拷贝：**我们总是参照现实世界去思考程序逻辑，实体是单独存在的，相关的统计信息则依附于这些实体**。
 
 ### a map of map
