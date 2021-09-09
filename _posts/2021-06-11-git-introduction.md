@@ -81,8 +81,8 @@ HEAD始终指向下一次commit的父节点，一般来说，The HEAD in Git is 
 在正常状态下，HEAD指向当前分支的分支名指针，它就是下一次新增commit的父节点。在detached HEAD状态下，HEAD指向下一次commit的父节点这一点仍然成立。
 
 那么HEAD有什么作用呢？
-1. 如果我们只用branch name来跟踪不同的分支的最后一次commit，那么我们就需要针对每条指令明确其操作的目标branch，采用HEAD指向的当前分支可以显著简化指令。
-2. 如果我们只用branch name来跟踪冈分支的最后一次commit，我们如何以某个分支的某个commit为基础来创建一个新的commit呢？HEAD可以解决这个问题。
+1. 简化指令。如果我们只用branch name来跟踪不同的分支的最后一次commit，那么我们就需要针对每条指令明确其操作的目标branch，但采用HEAD指向的当前分支可以显著简化指令——每条指令默认都针对HEAD。
+2. 作为游标。branch names只是指向每个分支的最后一次commit，如果要以某个分支的某个中间commit为基础来创建一个新的commit该怎么办？HEAD可以解决这个问题，此时呈现为detached HEAD状态。
 
 ### 分支合并的冲突和解决
 如果两个分支（比如master和feature1）相对分叉点（commit C3）有了新的commits，那么当在master上合并feature1就不能采用fast-forward策略，而只能采用3-way merge，此时就可能存在冲突。所谓冲突，就是存在两个不同的commits，修改了共同基commit的同一行。
@@ -130,7 +130,7 @@ stash@{0}: WIP on dev: f52c633 add merge
 stash的本意是put something valuable in a secret place to keep it safe.
 
 #### cherry-pick
-cherry-pick的意思是to pick or accept the best people or things in a group。
+cherry-pick是一个复合词，其英文本意是to pick or accept the best people or things in a group。
 
 当我们在bug分支上修改了某个bug，然后合并到了master分支上，对应一个提交C1，而dev分支则是从更早的master分支上创建的，因此这个bug必然也存在于dev分支上，我们我们如何修改dev分支上的对应bug呢？
 
@@ -153,7 +153,7 @@ $ git cat-file -p d670460b4b4aece5915caf5c68d12f560a9fe3e4
 test content
 ```
 
-这种object的类型被标记为blog，但这种类型的key值很难记忆，且没有文件名信息，因此git还引入了tree类型的object来解决这个问题。
+这种object被标记为blob类型，但这种类型的key值很难记忆，且没有文件名信息，因此git还引入了tree类型的object来解决这个问题。
 
 A single tree object contains one or more entries, each of which is the SHA-1 hash of a blob or subtree with **its associated mode, type, and filename**. For example, the most recent tree in a project may look something like this:
 ```Bash
@@ -167,9 +167,9 @@ $ git cat-file -p 99f1a6d12cb4b6f19c8655fca46c3ecf317074e0
 其中lib是一个目录，里面包含一个blog对象，the data that Git is storing looks something like this:
 ![tree-object](/assets/2021-06-11-git-introduction/tree-object.png)
 
-tree objects表示了项目的一个snapshot（包含了你最近在stage区域所做的所有修改），但You also don’t have any information about who saved 439the snapshots, when they were saved, or why they were saved..为此git提供了commit object来存储这些信息。
+**tree objects表示项目的一个snapshot**（包含了你最近在stage区域所做的所有修改），但You also don’t have any information about who saved the snapshots, when they were saved, or why they were saved..为此git提供了commit object来存储这些信息。
 
-你可以使用`commit-tree`来创建一个commit object，并使用 `git cat-file`查看其内容：
+你可以使用`commit-tree`来创建一个commit类型的object，并使用 `git cat-file`查看其内容：
 ```Bash
 $ echo 'First commit' | git commit-tree d8329f
 fdf4fc3344e67ab068f836878b6c4951e3b15f3d
@@ -181,10 +181,10 @@ committer Scott Chacon <schacon@gmail.com> 1243040974 -0700
 First commit
 ```
 
-这样，结合commit、tree、blob objects，git就完整的记了和表达了一个项目的各次提交所及的所有数据和元信息：
+这样，结合commit、tree、blob objects，git就完整的记录和表达了一个项目的各次提交所及的所有数据和元信息：
 ![objects](/assets/2021-06-11-git-introduction/objects.png)
 
-除了上述三类object外，还有一个tag object：
+除了上述三类objects外，还有一类tag object：
 1. 它类似于commit对象，annotated tag contains a tagger, a date, a message, and a pointer. 
 2. 但不同于commit对象，lightweight tag points to a commit rather than a tree. 注意commit object points to a tree object
 3. 它类似于a branch reference, but it never moves。换句话说， it always points to the same commit but
@@ -198,6 +198,12 @@ git references也称为refs。是**为了方便**识记SHA-1值而引入的标�
 `.git/refs/heads/`目录下的文件即本地分支名，每个分支名文件中存放对应分支的最后一次commit对象的SHA-1值。
 
 `.git/refs/tags`目录下的文件即tag objects，它们都是references。
+
+### 常见误解：commit记录的是本次提交的内容
+commit实际是整个仓库的一个快照：一个commit对象指向tree对象，tree对象指向子tree和blob对象。
+一个commit修改的内容可根据它与父commit的差来确定。这个差异会被用在cherry-pick指令中。
+
+某个分支修改的内容（差异对象），会根据其分支名（即头commit）与它从主分支off出来时的commit的差来确定。这个差异会被用在rebase指令中，rebase的本质是以指定base分支为基础，将先前的差异对象（trees、blobs）同步（删除、替换、新增）合并进来形成新的commit对象。
 
 ## 其他
 ### tag标签
@@ -223,7 +229,65 @@ A common issue arises in these scenarios: you want to be able to treat the two p
 
 Git addresses this issue using submodules. Submodules allow you to keep a Git repository as a subdirectory of another Git repository. This lets you clone another repository into your project and keep your commits separate.
 
+### pull request
+pull request是一个名词，Pull requests are proposed changes to a repository submitted by a user and accepted or rejected by a repository's collaborators.表示你对仓库的修改意见，它即可能被仓库管理者接受，也可能被拒绝。
+
+pull request是git开发的一种协作机制，与issue类似，每个PR具有相关的discussion forum。一旦你创建了一个PR，那么接下来你可以继续向其中添加新的commits（意味着有改动），这些都会被显示在git的PR页面中。
+
+为什么说是pull request而不是push request呢？[StackOverflow](https://stackoverflow.com/questions/21657430/why-is-a-git-pull-request-not-called-a-push-request)有一个答案说得很清楚，摘录如下：
+- A "pull request" is you requesting the target repository to please grab your changes.
+- A "push request" would be the target repository requesting you to push your changes.
+
+#### 参与开源项目
+主要步骤
+1. fork
+2. 调整本地分支比如master跟踪源项目的对应分支。注意这里与自己的远程仓库不同，我们需要本地的master分支跟踪源仓库的master分支。比如：
+```sh
+# 定义源项目URL的名称
+git remote add apache_spark https://github.com/apache/spark.git
+# 将源项目的master拉到本地，这样就跟踪到了源项目的master，而不是自己fork的远程仓库中的master
+git pull apache_spark master
+# 以上是最为关键的两步
+
+# 基于master创建bug修复分支
+git checkout -b myfix
+# ... 修改并提交到本地myfix分支
+
+# 在提交Pull Request前先合并源项目的更新内容：
+## 首先同步本地master
+git checkout master
+git pull apache_spark master  # 注意每次pull都要明确apache_spark
+## 切到myfix分支，然后以最新的master为base，重放myfix上的修改
+git checkout myfix
+git rebase master	# 在master基础上重放myfix的修改内容，并将myfix的分支名指针指向新的commit。
+# 也就是说，将myfix分支上所有的更改文件，合并到master这个commmit树上，形成新的commit树
+## 更新本地myfix到“自己的”远程仓库
+git push origin myfix
+```
+3. 提交pull request。一般来说，我们总是通过github页面UI来提交，因为pull request这并不是git原生操作。
+git虽然也有`git request-pull`，所以你可以调用`git request-pull`，但这只会生成一个email message，无法真正与github交互。如果你觉得确有必要，你可以自己尝试解决：或者参考这个[stackoverflow](https://stackoverflow.com/questions/60372852/how-to-create-pull-request-from-command-line),或者尝试直接使用这个工具[git-pull-request](https://github.com/Mergifyio/git-pull-request)
+
+### git fetch vs git pull
+本地仓库中有一堆分支，每个分支的头信息记录在.git/refs/heads目录下，比如`.git/refs/heads/<branch_name>`
+
+远程仓库也有一堆分支，其中的每个分支的头信息也被记录在本地仓库的`.git/refs/remotes/<remote_respository_name>/<branch_name>`目录下。
+
+本地仓库的分支可能有一个upstream（即上游，源分支），我们可以使用--track来关联，比如：
+```sh
+# git branch --track <branch-name> <remote_respository_name>/<branch-name>
+git branch --track main origin/main
+```
+
+本地分支与远程分支的关系，如果有的话，可以使用`git branch -vv`查看：就是查看branch的详细信息。
+
+fetch命令：git fetch main origin/main, 将远程仓库的origin/main的commitID获取到本地仓库的`.git/refs/remotes/origin/main`文件中。这只是一个元信息，表示远程的main分支在什么地方（commitID是多少）。这并不会更改你本地仓库的其他任何内容，如果你希望将远程对应分支中最近commits包含的内容更新到本地仓库，就需要手工merge。
+
+pull命令除了做fetch的上述动作，还会直接将远程分支头commitID对应的snapshot对象切切实实的拉取到本地，并合并到当前分支，如果存在冲突，就要在这个时候解决。
+
+![fetch-pull](/assets/2021-06-11-git-introduction/fetch-pull.png)
 
 参考：
 - [1] Scott Chacon, Ben Straub. Pro Git 
 - [2] 廖雪峰. [Git教程](https://www.liaoxuefeng.com/wiki/896043488029600)
+- [3] [详解git pull和git fetch的区别](https://zhuanlan.zhihu.com/p/123370920)
+- [4] [怎样加入一个开源项目](https://www.zhihu.com/question/19825119)

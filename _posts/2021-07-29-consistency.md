@@ -17,9 +17,9 @@ categories: 分布式
 ## consistency model
 consistency本质上是correctness condition。一个系统的正确性判定条件会因场景不同而不同，有的要求高，有点要求低。因此我们可以将consistency作为对系统safety满足程度的度量标准。
 
-最安全的程度是serialization，就是没有并发，所有活动行为全部串行。但为了提高性能，又要允许并发。为了在并发情况下，保证系统在某种程度上的正确性，人们提出了很多consistency modal。
+最安全的程度是serialization，就是没有并发，所有活动行为全部串行。但为了提高性能，又要允许并发。为了在并发情况下，保证系统在某种程度上的正确性，人们提出了很多consistency model。
 
-consistency modal实际上是人和系统之间的规则[约定](https://en.wikipedia.org/wiki/Consistency_model)，如果系统遵循这些约定来实施行为，那么就能保证数据状态的safety。具体实践上，有两种基本的策略：
+consistency model实际上是人和系统之间的规则[约定](https://en.wikipedia.org/wiki/Consistency_model)，如果系统遵循这些约定来实施行为，那么就能保证数据状态的safety。具体实践上，有两种基本的策略：
 1. 由程序员来保证一致性模型的实现，比如使用lock，semaphore，tunnel等机制来实现并发编程
 2. 在系统中内化一致性模型，比如提供atomic register，程序语言提供Linearizable data structure，或者类似future，promise，defer等特性
 
