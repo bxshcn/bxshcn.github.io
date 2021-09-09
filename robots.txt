@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: htts://bxshcn.github.io/sitemap.xml
+Sitemap: https://bxshcn.github.io/sitemap.xml
