@@ -85,7 +85,7 @@ func main() {
 
 再举一个例子，这个例子中用到了**自由变量**：
 > 所谓自由变量free variable，即不是在*内部函数*中定义的变量，而是在*外部函数*中定义，或者是外部函数的输入参数。这类变量可以被外部指令修改，所以被称为自由变量。
-```Python
+```python
 def f(x):
     def g(y):
         return x + y
@@ -100,6 +100,7 @@ assert a(5) == 6
 # Using closures without binding them to variables first.
 assert f(1)(5) == 6  # f(1) is the closure.
 ```
+
 这里**自由变量x被用作g的上下文字典的元素**，当我们定义f(1)时，即返回一个将自由变量x初始为1的closure。
 
 可以用一句话来描述closure的技术性构造过程：if **a function with free variable** is first-class, then **returning it** creates a closure。这里有两个关键，一是含有自由变量的内嵌函数，二是返回该函数。
