@@ -9,7 +9,7 @@ tags: golang
 # 简介
 本内容包括两篇文章，这是第一篇。
 
-第二篇[go error处理（2）](https://bxshcn.github.io/security/2021/09/08/go-error-handle2.html)
+第二篇[go error处理（2）](https://bxshcn.github.io/程序语言/2021/09/08/go-error-handle2.html)
 
 ## [errors are value](https://go.dev/blog/errors-are-values)
 Rob Pike在15年写的一篇blog，这里简要概括。
@@ -34,7 +34,7 @@ Pike指出
 2. 一个代码块往往只会对某个对象进行操作，即便中间出现error，继续执行代码块也只会导致对象的内部结果状态无效，而不会影响其他对象。换句话说，针对这个对象的操作，要么成功，要么失败。
 3. 乐观预期：正确操作对象的概率要远大于出错的概率
 
-Pike随后以bufio.Scanner类型为例，解释了**对error编程的基本模式**，其核心思想可概括为如下两点：
+Pike随后以bufio.Scanner类型为例，解释了**对error编程的模式**，其核心思想可概括为如下两点：
 1. 为操作对象中增加error类型的域作为状态，记为err
 2. 在具体操作时，如果发生错误则更新err状态
 
@@ -54,7 +54,7 @@ func (ew *errWriter) write(buf []byte) {
 ```
 errWriter对象的write方法签名并没有像我们常见的那样返回error，它没有返回值，与之相对应的是更新了对象的err状态。而一旦write发现对象的状态不对，就会让自己成为一个no-op空操作，避免产生负面影响（比如造成错误的系统状态，耗时的等待操作等）。有些情况下即便发生错误，不做检查的鲁莽操作也不会有负面影响，则我们可以干脆不用做这步检查。
 
-与此同时，Pike指出，这种模式有一个缺点，因为我们只在最后检测错误，我们并不知道在错误发生之前处理了多少内容，如果这个信息很重要，那么我们就需要采用一种更细粒度的检测方法（即经典的错误处理模式），但大多数情况下，an all-or-nothing check at the end is sufficient.
+与此同时，Pike指出，这种模式有一个缺点，因为我们只在最后检测错误，我们并不知道在错误发生之前处理了多少内容，如果这个信息很重要，那么我们就需要采用一种更细粒度的检测方法（即经典错误处理模式），但大多数情况下，an all-or-nothing check at the end is sufficient.
 
 上述模式在标准库archive/zip、net/http等包中都有广泛的使用，在bufio.Reader中也有典型的应用：
 ```Go
@@ -73,11 +73,11 @@ func (b *Reader) Read(p []byte) (n int, err error) {
 			return 0, b.readErr()
 		}
 		// ...
-		n, b.err = b.rd.Read(b.buf)
+		n, b.err = b.rd.Read(b.buf)	// 更新本地err状态
 		// ...
 	}
 	// ...
 }
 ```
 
-下一篇[go error处理（2）](https://bxshcn.github.io/security/2021/09/08/go-error-handle2.html)
+下一篇[go error处理（2）](https://bxshcn.github.io/程序语言/2021/09/08/go-error-handle2.html)

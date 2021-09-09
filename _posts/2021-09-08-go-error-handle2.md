@@ -227,12 +227,12 @@ func (s *ss) doScan(a []interface{}) (numProcessed int, err error) {
 }
 ```
 
-另外一种错误处理模式是在前一篇[go error处理（1）](https://bxshcn.github.io/security/2021/09/07/go-error-handle1.html)中提到的：封装对象，辅之以error类型对象作为中间错误状态保存，只在系列操作的最后检查该错误状态并完成错误应对处理。前提是这些系列操作只针对被封装的对象，而不影响其他对象。
+另外一种错误处理模式是在前一篇[go error处理（1）](https://bxshcn.github.io/程序语言/2021/09/07/go-error-handle1.html)中提到的：封装对象，辅之以error类型对象作为中间错误状态保存，只在系列操作的最后检查该错误状态并完成错误应对处理。前提是这些系列操作只针对被封装的对象，而不影响其他对象。
 
 当然，最为**经典的错误处理模式**就是将error作为函数返回值，然后实时的检测上一步的函数调用是否发生错误，并进行相应处理。
 
 ## 总结
 go error handle有三种模式：
 1. real-time check模式，即经典模式。函数返回含有error类型对象，即时检测函数的执行结果。
-2. all-or-nothing模式。封装对象，为其增加error类型的状态，针对该对象的操作会实时更新该对象的error状态，但只在最后一步操作检测结果。
+2. all-or-nothing模式，即对error编程模式。封装对象，为其增加error类型的状态，针对该对象的操作会实时更新该对象的error状态，但只在最后一步操作检测结果。
 3. lazy模式，即defer-panic-recover模式。应用defer、panic和recover机制，在一定边界内，只将error通过panic抛出，并在边界上recover，同时将最严重的错误转换为error类型对象返回。
